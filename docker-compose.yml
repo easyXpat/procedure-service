@@ -1,0 +1,29 @@
+
+version: '3.1'
+
+services:
+
+  procedure:
+    restart: always
+    build: ./
+    depends_on:
+      - database_pg
+    links:
+      - database_pg
+    ports:
+      - 9090:9090
+    environment:
+      DB_HOST: "database_pg"
+      DB_NAME: "postgres"
+      DB_USER: "username"
+      DB_PASS: "password"
+      DB_PORT: "5432"
+
+  database_pg:
+    image: postgres:alpine
+    container_name: database_pg
+    environment:
+      POSTGRES_PASSWORD: "password"
+      POSTGRES_USER: "username"
+    ports:
+      - 5432:5432
