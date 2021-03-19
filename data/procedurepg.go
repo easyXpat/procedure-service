@@ -10,8 +10,10 @@ import (
 )
 
 const (
-	InsertProcedureQ = "insert into procedure (id, name, description, city, created_at, updated_at) values ($1, $2, $3, $4, $5, $6)"
+	InsertProcedureQ = "INSERT INTO procedure (id, name, description, city, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6)"
 	GetAllProceduresQ = "SELECT * FROM procedure"
+	GetProcedureQ = "SELECT * FROM procedure WHERE id = $1"
+	UpdateProcedureQ = "UPDATE procedure SET name = $1, description = $2, city = $3, updated_at = $4 where id = $5"
 )
 
 // ProcedurePG is an implementation of the Procedure DB interface
@@ -31,11 +33,12 @@ func (ppg *ProcedurePG) AddProcedure(ctx context.Context, p *Procedure) error {
 	p.CreatedAt = time.Now()
 	p.UpdatedAt = time.Now()
 
-	ppg.logger.Info("creating procedure", hclog.Fmt("%#v", p))
+	ppg.logger.Info("creating procedure", "id", p.ID, "name", p.Name)
 	_, err := ppg.db.Exec(ctx, InsertProcedureQ, p.ID, p.Name, p.Description, p.City, p.CreatedAt, p.UpdatedAt)
 	return err
 }
 
+// GetAllProcedures gets all procedures from DB
 func (ppg *ProcedurePG) GetAllProcedures(ctx context.Context) (Procedures, error) {
 	ppg.logger.Info("fetching procedures from db")
 	var p Procedures
@@ -48,4 +51,33 @@ func (ppg *ProcedurePG) GetAllProcedures(ctx context.Context) (Procedures, error
 	}
 
 	return p, nil
+}
+
+// UpdateProcedure procedure from DB using id
+func (ppg *ProcedurePG) UpdateProcedure(ctx context.Context, p *Procedure) (*Procedure, error) {
+	p.UpdatedAt = time.Now()
+
+	_, err := ppg.db.Exec(ctx, UpdateProcedureQ, p.Name, p.Description, p.City, p.UpdatedAt, p.ID)
+	if err != nil {
+		ppg.logger.Error("Error updating procedure in db", "error", err)
+		return nil, err
+	}
+	updatedProcedure, err := ppg.GetProcedure(ctx, p.ID)
+	if err != nil {
+		ppg.logger.Error("Failed fetching updated record from db", "error", err)
+	}
+	return updatedProcedure, nil
+}
+
+// GetProcedure fetch a procedure from DB using id
+func (ppg *ProcedurePG) GetProcedure(ctx context.Context, id string) (*Procedure, error) {
+	ppg.logger.Debug("querying for procedure", "id", id)
+	var p Procedure
+	err := pgxscan.Get(context.Background(), ppg.db, &p, GetProcedureQ, id)
+	if err != nil {
+		ppg.logger.Error("Error fetching procedure", "error", err)
+		return nil, err
+	}
+	return &p, nil
+
 }

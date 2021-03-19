@@ -8,6 +8,9 @@ import (
 // ProcedureKey is used as a key for storing the Procedure object in context at middleware
 type ProcedureKey struct{}
 
+// ProcedureIDKey is used as a key for storing the ProcedureID in context at middleware
+type ProcedureIDKey struct{}
+
 // Procedure wraps instances needed to perform operations on procedure object
 type Procedure struct {
 	logger          hclog.Logger

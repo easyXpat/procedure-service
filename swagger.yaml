@@ -66,6 +66,9 @@ paths:
     get:
       description: return all procedures from the database
       operationId: listProcedures
+      responses:
+        "200":
+          $ref: '#/responses/proceduresResponse'
       tags:
       - procedures
     post:
@@ -80,6 +83,23 @@ paths:
           $ref: '#/responses/errorValidation'
         "501":
           $ref: '#/responses/errorResponse'
+      tags:
+      - procedures
+    put:
+      description: Update existing procedure
+      operationId: updateProcedure
+      responses:
+        "200":
+          $ref: '#/responses/procedureResponse'
+      tags:
+      - procedures
+  /procedures/{id}:
+    get:
+      description: list single procedure from db
+      operationId: getProcedure
+      responses:
+        "200":
+          $ref: '#/responses/procedureResponse'
       tags:
       - procedures
 produces:

@@ -17,11 +17,11 @@ import (
 //  501: errorResponse
 
 // Create handles POST requests to add new procedures
-func (p *Procedure) Create(w http.ResponseWriter, r *http.Request) {
+func (ph *Procedure) CreateProcedure(w http.ResponseWriter, r *http.Request) {
 	// fetch the product from the context
 	procedure := r.Context().Value(ProcedureKey{}).(data.Procedure)
-	p.logger.Debug(fmt.Sprintf("Inserting procedure: %v", procedure))
-	err := p.db.AddProcedure(context.Background(), &procedure)
+	ph.logger.Debug(fmt.Sprintf("Inserting procedure: %v", procedure))
+	err := ph.db.AddProcedure(context.Background(), &procedure)
 	if err != nil {
 		data.ToJSON(&GenericError{Message: err.Error()}, w)
 		return

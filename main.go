@@ -6,13 +6,17 @@ import (
 	"github.com/easyXpat/procedure-service/data"
 	"github.com/easyXpat/procedure-service/handlers"
 	"github.com/easyXpat/procedure-service/store"
+	"github.com/go-openapi/runtime/middleware"
 	"github.com/gorilla/mux"
 	"github.com/hashicorp/go-hclog"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
-	"github.com/go-openapi/runtime/middleware"
+)
+
+const (
+	UUIDv4Format = "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-4[a-fA-F0-9]{3}-[8|9|aA|bB][a-fA-F0-9]{3}-[a-fA-F0-9]{12}$"
 )
 
 func main() {
@@ -52,13 +56,21 @@ func main() {
 	getR.Handle("/docs", sh)
 	getR.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
 
+
+	getR.HandleFunc("/procedures/{id}", ph.GetProcedure)
+	//getR.HandleFunc(fmt.Sprintf("/procedures/{id:%s}", UUIDv4Format), ph.GetProcedure)
 	getR.HandleFunc("/procedures", ph.ListAll)
 
 
 	// register subrouter for POST methods
 	postR := sm.Methods(http.MethodPost).Subrouter()
-	postR.HandleFunc("/procedures", ph.Create)
+	postR.HandleFunc("/procedures", ph.CreateProcedure)
 	postR.Use(ph.MiddlewareValidateProcedure)
+
+	// register subrouter for PUT methods
+	putR := sm.Methods(http.MethodPut).Subrouter()
+	putR.HandleFunc("/procedures", ph.UpdateProcedure)
+	putR.Use(ph.MiddlewareValidateProcedure)
 
 
 	svr := http.Server{
@@ -72,7 +84,7 @@ func main() {
 
 	// start the server
 	go func() {
-		logger.Info("starting the server at port", configs.ServerAddress)
+		logger.Info("starting the server", "address", configs.ServerAddress)
 
 		err := svr.ListenAndServe()
 		if err != nil {

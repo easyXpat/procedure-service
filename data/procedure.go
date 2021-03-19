@@ -50,4 +50,6 @@ type Procedures []*Procedure
 type ProcedureDB interface {
 	AddProcedure(ctx context.Context, p *Procedure) error
 	GetAllProcedures(ctx context.Context) (Procedures, error)
+	UpdateProcedure(ctx context.Context, p *Procedure) (*Procedure, error)
+	GetProcedure(ctx context.Context, id string) (*Procedure, error)
 }
