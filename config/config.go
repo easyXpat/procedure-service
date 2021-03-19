@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"github.com/spf13/viper"
 	"github.com/hashicorp/go-hclog"
 )
@@ -36,7 +37,11 @@ func NewConfiguration(logger hclog.Logger) *Configuration {
 		DBHost:                     viper.GetString("DB_HOST"),
 		DBName:                     viper.GetString("DB_NAME"),
 		DBUser:                     viper.GetString("DB_USER"),
-		DBPass:                     viper.GetString("DB_PASSWORD"),
+		DBPass:                     viper.GetString("DB_PASS"),
 		DBPort:                     viper.GetString("DB_PORT"),
 	}
+}
+
+func(c *Configuration) GetPGConnectionString() string {
+	return fmt.Sprintf("postgres://%s:%s@%s:%s/%s?", c.DBUser, c.DBPass, c.DBHost, c.DBPort, c.DBName)
 }

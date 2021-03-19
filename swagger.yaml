@@ -1,0 +1,108 @@
+basePath: /
+consumes:
+- application/json
+definitions:
+  GenericError:
+    properties:
+      message:
+        type: string
+        x-go-name: Message
+    type: object
+    x-go-package: github.com/easyXpat/procedure-service/handlers
+  Procedure:
+    description: Procedure defines the structure for an API procedure
+    properties:
+      city:
+        description: city for the procedure
+        maxLength: 32
+        type: string
+        x-go-name: City
+      created_at:
+        description: creation time for the procedure
+        format: date-time
+        type: string
+        x-go-name: CreatedAt
+      description:
+        description: description for the procedure
+        maxLength: 10000
+        type: string
+        x-go-name: Description
+      id:
+        description: unique id for the procedure
+        maxLength: 255
+        minimum: 1
+        type: string
+        x-go-name: ID
+      name:
+        description: name for the procedure
+        maxLength: 255
+        type: string
+        x-go-name: Name
+      updated_at:
+        description: last update time for the procedure
+        format: date-time
+        type: string
+        x-go-name: UpdatedAt
+    required:
+    - name
+    type: object
+    x-go-package: github.com/easyXpat/procedure-service/data
+  ValidationError:
+    description: ValidationError is a collection of validation error messages
+    properties:
+      messages:
+        items:
+          type: string
+        type: array
+        x-go-name: Messages
+    type: object
+    x-go-package: github.com/easyXpat/procedure-service/handlers
+info:
+  description: Documentation for Procedure API
+  title: of Procedure API
+  version: 1.0.0
+paths:
+  /procedures:
+    get:
+      description: return all procedures from the database
+      operationId: listProcedures
+      tags:
+      - procedures
+    post:
+      description: Create a new procedure
+      operationId: createProcedure
+      responses:
+        "200":
+          $ref: '#/responses/procedureResponse'
+        "400":
+          $ref: '#/responses/errorValidation'
+        "422":
+          $ref: '#/responses/errorValidation'
+        "501":
+          $ref: '#/responses/errorResponse'
+      tags:
+      - procedures
+produces:
+- application/json
+responses:
+  errorResponse:
+    description: Generic error message returned as a string
+    schema:
+      $ref: '#/definitions/GenericError'
+  errorValidation:
+    description: Validation errors defined as an array of strings
+    schema:
+      $ref: '#/definitions/ValidationError'
+  procedureResponse:
+    description: Data structure representing a single procedure
+    schema:
+      $ref: '#/definitions/Procedure'
+  proceduresResponse:
+    description: A list of procedures
+    schema:
+      items:
+        $ref: '#/definitions/Procedure'
+      type: array
+schemes:
+- http
+swagger: "2.0"

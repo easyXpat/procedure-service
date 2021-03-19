@@ -2,8 +2,9 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"github.com/easyXpat/procedure-service/config"
+	"github.com/easyXpat/procedure-service/data"
+	"github.com/easyXpat/procedure-service/handlers"
 	"github.com/easyXpat/procedure-service/store"
 	"github.com/gorilla/mux"
 	"github.com/hashicorp/go-hclog"
@@ -11,6 +12,7 @@ import (
 	"os"
 	"os/signal"
 	"time"
+	"github.com/go-openapi/runtime/middleware"
 )
 
 func main() {
@@ -18,12 +20,46 @@ func main() {
 	logger.Info("Initializing Procedure API")
 
 	configs := config.NewConfiguration(logger)
-	fmt.Println(configs.DBHost)
 
+	// validator contains all the methods that are needed to validate procedure requests
+	validator := data.NewValidation()
+
+	// create a new postgres connection
+	db, err := store.NewConnection(logger, configs)
+	if err != nil {
+		logger.Error("unable to connect to db", "error", err)
+		panic(err)
+	}
+
+	// creation of procedure table
+	db.Exec(context.Background(), store.ProcedureTableQ)
+
+	// procedure service contains all methods that interact with DB to perform CRUD operations for procedure
+	procedureDB := data.NewProcedurePG(logger, db)
+
+	// procedure handler encapsulates procedure related services.
+	ph := handlers.NewProcedure(logger, procedureDB, validator)
+
+	// handler for documentation
+	opts := middleware.RedocOpts{SpecURL: "/swagger.yaml"}
+	sh := middleware.Redoc(opts, nil)
+
+	// create mux server
 	sm := mux.NewRouter()
 
-	pg := store.NewPGClient(logger)
-	pg.CreateProcedureDB()
+	// register subrouter for GET methods
+	getR := sm.Methods(http.MethodGet).Subrouter()
+	getR.Handle("/docs", sh)
+	getR.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
+
+	getR.HandleFunc("/procedures", ph.ListAll)
+
+
+	// register subrouter for POST methods
+	postR := sm.Methods(http.MethodPost).Subrouter()
+	postR.HandleFunc("/procedures", ph.Create)
+	postR.Use(ph.MiddlewareValidateProcedure)
+
 
 	svr := http.Server{
 		Addr:         configs.ServerAddress,
@@ -55,8 +91,7 @@ func main() {
 
 	//gracefully shutdown the server, waiting max 30 seconds for current operations to complete
 	ctx, _ := context.WithTimeout(context.Background(), 30*time.Second)
+	defer db.Close(ctx)
 	svr.Shutdown(ctx)
-
-
 
 }
