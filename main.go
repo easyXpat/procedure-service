@@ -13,6 +13,7 @@ import (
 	"os"
 	"os/signal"
 	"time"
+	gohandlers "github.com/gorilla/handlers"
 )
 
 const (
@@ -72,10 +73,12 @@ func main() {
 	putR.HandleFunc("/procedures", ph.UpdateProcedure)
 	putR.Use(ph.MiddlewareValidateProcedure)
 
+	ch := gohandlers.CORS(gohandlers.AllowedOrigins([]string{"*"}))
+
 
 	svr := http.Server{
 		Addr:         configs.ServerAddress,
-		Handler:      sm,
+		Handler:      ch(sm),
 		ErrorLog:     logger.StandardLogger(&hclog.StandardLoggerOptions{}),
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
