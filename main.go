@@ -7,13 +7,13 @@ import (
 	"github.com/easyXpat/procedure-service/handlers"
 	"github.com/easyXpat/procedure-service/store"
 	"github.com/go-openapi/runtime/middleware"
+	gohandlers "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/hashicorp/go-hclog"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
-	gohandlers "github.com/gorilla/handlers"
 )
 
 const (
@@ -75,8 +75,14 @@ func main() {
 
 	ch := gohandlers.CORS(gohandlers.AllowedOrigins([]string{"*"}))
 
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "9090"
+	}
+
+	logger.Info("Starting web server", "port", port)
 	svr := http.Server{
-		Addr:         ":"+configs.DBPort,
+		Addr:         ":"+port,
 		Handler:      ch(sm),
 		ErrorLog:     logger.StandardLogger(&hclog.StandardLoggerOptions{}),
 		ReadTimeout:  5 * time.Second,
