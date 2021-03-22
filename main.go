@@ -75,10 +75,8 @@ func main() {
 
 	ch := gohandlers.CORS(gohandlers.AllowedOrigins([]string{"*"}))
 
-
-
 	svr := http.Server{
-		//Addr:         configs.ServerAddress,
+		Addr:         ":"+configs.DBPort,
 		Handler:      ch(sm),
 		ErrorLog:     logger.StandardLogger(&hclog.StandardLoggerOptions{}),
 		ReadTimeout:  5 * time.Second,
