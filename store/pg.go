@@ -23,7 +23,7 @@ const (
 
 func NewConnection(logger hclog.Logger, config *config.Configuration) (*pgx.Conn, error) {
 	logger.Info("Connecting to postgres DB")
-	conn, err := pgx.Connect(context.Background(), config.GetPGConnectionString())
+	conn, err := pgx.Connect(context.Background(), config.DatabaseURL)
 	if err != nil {
 		logger.Error("Unable to connect to database: %v\n", err)
 		return nil, err

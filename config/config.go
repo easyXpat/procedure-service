@@ -17,6 +17,7 @@ type Configuration struct {
 	DBUser                     string
 	DBPass                     string
 	DBPort                     string
+	DatabaseURL                     string
 }
 
 func setDefaults(logger hclog.Logger) {
@@ -32,7 +33,7 @@ func NewConfiguration(logger hclog.Logger) *Configuration {
 	logger.Debug("Fetch default configuration")
 	viper.AutomaticEnv()
 	setDefaults(logger)
-	return &Configuration{
+	c := &Configuration{
 		ServerAddress: viper.GetString("SERVER_ADDRESS"),
 		DBHost:                     viper.GetString("DB_HOST"),
 		DBName:                     viper.GetString("DB_NAME"),
@@ -40,8 +41,14 @@ func NewConfiguration(logger hclog.Logger) *Configuration {
 		DBPass:                     viper.GetString("DB_PASS"),
 		DBPort:                     viper.GetString("DB_PORT"),
 	}
+	c.SetPGConnectionString()
+	return c
 }
 
-func(c *Configuration) GetPGConnectionString() string {
-	return fmt.Sprintf("postgres://%s:%s@%s:%s/%s?", c.DBUser, c.DBPass, c.DBHost, c.DBPort, c.DBName)
+func(c *Configuration) SetPGConnectionString() {
+	if viper.GetString("DATABASE_URL") != "" {
+		c.DatabaseURL = viper.GetString("DATABASE_URL")
+		return
+	}
+	c.DatabaseURL = fmt.Sprintf("postgres://%s:%s@%s:%s/%s?", c.DBUser, c.DBPass, c.DBHost, c.DBPort, c.DBName)
 }
