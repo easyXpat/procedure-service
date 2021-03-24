@@ -81,6 +81,7 @@ func main() {
 	}
 
 	logger.Info("Starting web server", "port", port)
+	logger.Info("Test Heroku")
 	svr := http.Server{
 		Addr:         ":"+port,
 		Handler:      ch(sm),
