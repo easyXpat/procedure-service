@@ -81,7 +81,7 @@ func main() {
 	}
 
 	logger.Info("Starting web server", "port", port)
-	logger.Info("Test Heroku")
+	logger.Info("Test Heroku", "port", port)
 	svr := http.Server{
 		Addr:         ":"+port,
 		Handler:      ch(sm),
@@ -93,8 +93,6 @@ func main() {
 
 	// start the server
 	go func() {
-		logger.Info("starting the server", "address", configs.ServerAddress)
-
 		err := svr.ListenAndServe()
 		if err != nil {
 			logger.Error("could not start the server", "error", err)
