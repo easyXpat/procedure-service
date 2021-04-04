@@ -2,6 +2,11 @@ package main
 
 import (
 	"context"
+	"net/http"
+	"os"
+	"os/signal"
+	"time"
+
 	"github.com/easyXpat/procedure-service/config"
 	"github.com/easyXpat/procedure-service/data"
 	"github.com/easyXpat/procedure-service/handlers"
@@ -10,10 +15,6 @@ import (
 	gohandlers "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/hashicorp/go-hclog"
-	"net/http"
-	"os"
-	"os/signal"
-	"time"
 )
 
 const (
@@ -57,11 +58,9 @@ func main() {
 	getR.Handle("/docs", sh)
 	getR.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
 
-
 	getR.HandleFunc("/procedures/{id}", ph.GetProcedure)
 	//getR.HandleFunc(fmt.Sprintf("/procedures/{id:%s}", UUIDv4Format), ph.GetProcedure)
 	getR.HandleFunc("/procedures", ph.ListAll)
-
 
 	// register subrouter for POST methods
 	postR := sm.Methods(http.MethodPost).Subrouter()
@@ -73,6 +72,10 @@ func main() {
 	putR.HandleFunc("/procedures", ph.UpdateProcedure)
 	putR.Use(ph.MiddlewareValidateProcedure)
 
+	// register subrouter for DELETE methods
+	deleteR := sm.Methods(http.MethodDelete).Subrouter()
+	deleteR.HandleFunc("/procedures/{id}", ph.DeleteProcedure)
+
 	ch := gohandlers.CORS(gohandlers.AllowedOrigins([]string{"*"}))
 
 	port := os.Getenv("PORT")
@@ -83,7 +86,7 @@ func main() {
 	logger.Info("Starting web server", "port", port)
 	logger.Info("Test Heroku", "port", port)
 	svr := http.Server{
-		Addr:         ":"+port,
+		Addr:         ":" + port,
 		Handler:      ch(sm),
 		ErrorLog:     logger.StandardLogger(&hclog.StandardLoggerOptions{}),
 		ReadTimeout:  5 * time.Second,

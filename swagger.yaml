@@ -94,6 +94,16 @@ paths:
       tags:
       - procedures
   /procedures/{id}:
+    delete:
+      description: Delete an existing procedure
+      operationId: deleteProcedures
+      responses:
+        "200":
+          $ref: '#/responses/procedureResponse'
+        "404":
+          $ref: '#/responses/errorValidation'
+      tags:
+      - procedures
     get:
       description: list single procedure from db
       operationId: getProcedure

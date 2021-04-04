@@ -12,3 +12,25 @@ The procedure service handles operations related to procedures offered by EasyXp
 `go run .`
 
 
+## Method Usage
+### GET
+
+#### Example
+
+
+### DELETE
+
+#### Example
+
+### POST
+A key/value pair for the "name", "description", and "city" keys is required in the JSON body of the POST request.
+#### Example
+```json
+{
+	"name": "Blue Card",
+	"description": "Process to apply for a Blue Card",
+	"city": "Frankfurt"
+}
+```
+
+### PUT

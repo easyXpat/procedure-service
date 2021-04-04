@@ -2,24 +2,26 @@ package data
 
 import (
 	"context"
+	"time"
+
 	"github.com/georgysavva/scany/pgxscan"
 	"github.com/hashicorp/go-hclog"
 	"github.com/jackc/pgx/v4"
 	uuid "github.com/satori/go.uuid"
-	"time"
 )
 
 const (
-	InsertProcedureQ = "INSERT INTO procedure (id, name, description, city, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6)"
+	InsertProcedureQ  = "INSERT INTO procedure (id, name, description, city, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6)"
 	GetAllProceduresQ = "SELECT * FROM procedure"
-	GetProcedureQ = "SELECT * FROM procedure WHERE id = $1"
-	UpdateProcedureQ = "UPDATE procedure SET name = $1, description = $2, city = $3, updated_at = $4 where id = $5"
+	GetProcedureQ     = "SELECT * FROM procedure WHERE id = $1"
+	UpdateProcedureQ  = "UPDATE procedure SET name = $1, description = $2, city = $3, updated_at = $4 where id = $5"
+	DeleteProcedureQ  = "DELETE FROM procedure WHERE id = $1"
 )
 
 // ProcedurePG is an implementation of the Procedure DB interface
 type ProcedurePG struct {
-	logger      hclog.Logger
-	db		*pgx.Conn
+	logger hclog.Logger
+	db     *pgx.Conn
 }
 
 // NewProcedurePG Creates a client for interacting with the procedure relation in postgres DB
@@ -80,4 +82,16 @@ func (ppg *ProcedurePG) GetProcedure(ctx context.Context, id string) (*Procedure
 	}
 	return &p, nil
 
+}
+
+// DeleteProcedure deletes a procedure from the DB using its id
+func (ppg *ProcedurePG) DeleteProcedure(ctx context.Context, id string) error {
+
+	ppg.logger.Info("deleting procedure", "id", id)
+	_, err := ppg.db.Exec(ctx, DeleteProcedureQ, id)
+	if err != nil {
+		ppg.logger.Error("Error deleting procedure in db", "error", err)
+		return err
+	}
+	return nil
 }
