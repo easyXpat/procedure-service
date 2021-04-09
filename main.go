@@ -37,13 +37,15 @@ func main() {
 	}
 
 	// creation of procedure table
-	db.Exec(context.Background(), store.ProcedureTableQ)
+	db.Exec(context.Background(), store.ProcedureTableDDL)
+	db.Exec(context.Background(), store.StepTableDDL)
 
 	// procedure service contains all methods that interact with DB to perform CRUD operations for procedure
 	procedureDB := data.NewProcedurePG(logger, db)
 
-	// procedure handler encapsulates procedure related services.
+	// handlers encapsulates procedure related services.
 	ph := handlers.NewProcedure(logger, procedureDB, validator)
+	st := handlers.NewStep(logger, procedureDB, validator)
 
 	// handler for documentation
 	opts := middleware.RedocOpts{SpecURL: "/swagger.yaml"}
@@ -58,15 +60,22 @@ func main() {
 	getR.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
 
 
-	getR.HandleFunc("/procedures/{id}", ph.GetProcedure)
-	//getR.HandleFunc(fmt.Sprintf("/procedures/{id:%s}", UUIDv4Format), ph.GetProcedure)
-	getR.HandleFunc("/procedures", ph.ListAll)
+	getR.HandleFunc("/procedure/{id}", ph.GetProcedure)
+	//getR.HandleFunc("/procedures/{city}", ph.GetProceduresFromCity)
+	getR.HandleFunc("/procedures", ph.GetProcedures)
+	getR.HandleFunc("/steps", st.GetSteps)
+	getR.HandleFunc("/steps/{procedure}", st.GetProcedureSteps)
+	getR.HandleFunc("/step/{id}", st.GetStep)
 
 
 	// register subrouter for POST methods
 	postR := sm.Methods(http.MethodPost).Subrouter()
 	postR.HandleFunc("/procedures", ph.CreateProcedure)
 	postR.Use(ph.MiddlewareValidateProcedure)
+
+	postStepR := sm.Methods(http.MethodPost).Subrouter()
+	postStepR.HandleFunc("/steps", st.CreateStep)
+	postStepR.Use(st.MiddlewareValidateStep)
 
 	// register subrouter for PUT methods
 	putR := sm.Methods(http.MethodPut).Subrouter()

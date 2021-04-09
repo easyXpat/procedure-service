@@ -15,4 +15,5 @@ require (
 	github.com/leodido/go-urn v1.2.1 // indirect
 	github.com/satori/go.uuid v1.2.0
 	github.com/spf13/viper v1.7.1
+	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 )

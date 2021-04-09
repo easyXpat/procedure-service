@@ -16,7 +16,7 @@ import (
 //  422: errorValidation
 //  501: errorResponse
 
-// Create handles POST requests to add new procedures
+// CreateProcedure handles POST requests to add new procedures
 func (ph *Procedure) CreateProcedure(w http.ResponseWriter, r *http.Request) {
 	// fetch the product from the context
 	procedure := r.Context().Value(ProcedureKey{}).(data.Procedure)
@@ -27,4 +27,23 @@ func (ph *Procedure) CreateProcedure(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	data.ToJSON(&procedure, w)
+}
+
+// swagger:route POST /steps steps createStep
+// Create a new step
+//
+// responses:
+//	200: stepResponse
+
+// CreateStep handles POST requests to add new step
+func (st *Step) CreateStep(w http.ResponseWriter, r *http.Request) {
+	// fetch the product from the context
+	step := r.Context().Value(StepKey{}).(data.Step)
+	st.logger.Debug(fmt.Sprintf("Inserting step: %v", step))
+	err := st.db.AddStep(context.Background(), &step)
+	if err != nil {
+		data.ToJSON(&GenericError{Message: err.Error()}, w)
+		return
+	}
+	data.ToJSON(&step, w)
 }

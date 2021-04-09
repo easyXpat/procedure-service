@@ -53,4 +53,19 @@ type procedureResponseWrapper struct {
 	Body data.Procedure
 }
 
+// Data structure representing a single step
+// swagger:response stepResponse
+type stepResponseWrapper struct {
+	// Newly created procedure
+	// in: body
+	Body data.Step
+}
+
+// A list of steps
+// swagger:response stepsResponse
+type stepsResponseWrapper struct {
+	// All current procedures
+	// in: body
+	Body []data.Step
+}
 

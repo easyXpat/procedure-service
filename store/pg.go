@@ -8,12 +8,23 @@ import (
 )
 
 const (
-	ProcedureTableQ = `
+	ProcedureTableDDL = `
 		create table if not exists procedure (
 			id	Varchar(64) not null,
 			name Varchar(255) not null,
 			description Varchar(1000),
 			city Varchar(32),
+			created_at  Timestamp not null,
+			updated_at  Timestamp not null,
+			Primary Key(id)
+		);
+	`
+	StepTableDDL = `
+		create table if not exists step (
+			id	Varchar(64) not null,
+			procedure_id	Varchar(64) not null,
+			name Varchar(255) not null,
+			description Varchar(1000),
 			created_at  Timestamp not null,
 			updated_at  Timestamp not null,
 			Primary Key(id)
