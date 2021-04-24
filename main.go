@@ -2,19 +2,20 @@ package main
 
 import (
 	"context"
+	"net/http"
+	"os"
+	"os/signal"
+	"time"
+
 	"github.com/easyXpat/procedure-service/config"
 	"github.com/easyXpat/procedure-service/data"
 	"github.com/easyXpat/procedure-service/handlers"
 	"github.com/easyXpat/procedure-service/store"
 	"github.com/go-openapi/runtime/middleware"
-	//gohandlers "github.com/gorilla/handlers"
+	gohandlers "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/hashicorp/go-hclog"
-	"github.com/rs/cors"
-	"net/http"
-	"os"
-	"os/signal"
-	"time"
+	//"github.com/rs/cors"
 )
 
 const (
@@ -65,7 +66,6 @@ func main() {
 	getR.Handle("/docs", sh)
 	getR.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
 
-
 	getR.HandleFunc("/procedure/{id}", ph.GetProcedure)
 	//getR.HandleFunc("/procedures/{city}", ph.GetProceduresFromCity)
 	//getR.Handle("/procedures", jwtMiddleware.Handler(http.HandlerFunc(ph.GetProcedures)))
@@ -73,7 +73,8 @@ func main() {
 	getR.HandleFunc("/steps", st.GetSteps)
 	getR.HandleFunc("/steps/{procedure}", st.GetProcedureSteps)
 	getR.HandleFunc("/step/{id}", st.GetStep)
-
+	//getR.HandleFunc(fmt.Sprintf("/procedures/{id:%s}", UUIDv4Format), ph.GetProcedure)
+	//getR.HandleFunc("/procedures", ph.ListAll)
 
 	// register subrouter for POST methods
 	postR := sm.Methods(http.MethodPost).Subrouter()
@@ -90,22 +91,28 @@ func main() {
 	putR.Use(ph.MiddlewareValidateProcedure)
 
 	//ch := gohandlers.CORS(gohandlers.AllowedOrigins([]string{"*"}), gohandlers.AllowedMethods([]string{"*"}), gohandlers.AllowedHeaders([]string{"*"}))
+	// register subrouter for DELETE methods
+	deleteR := sm.Methods(http.MethodDelete).Subrouter()
+	deleteR.HandleFunc("/procedures/{id}", ph.DeleteProcedure)
+
+	ch := gohandlers.CORS(gohandlers.AllowedOrigins([]string{"*"}))
 
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "9090"
 	}
 
-	corsWrapper := cors.New(cors.Options{
-		AllowedMethods: []string{"GET", "POST"},
-		AllowedHeaders: []string{"Content-Type", "Origin", "Accept", "*"},
-	})
+	//corsWrapper := cors.New(cors.Options{
+	//	AllowedMethods: []string{"GET", "POST"},
+	//	AllowedHeaders: []string{"Content-Type", "Origin", "Accept", "*"},
+	//})
 
 	logger.Info("Starting web server", "port", port)
 	logger.Info("Test Heroku", "port", port)
 	svr := http.Server{
 		Addr:         ":"+port,
-		Handler:      corsWrapper.Handler(sm),
+		//Handler:      corsWrapper.Handler(sm),
+		Handler:      ch(sm),
 		ErrorLog:     logger.StandardLogger(&hclog.StandardLoggerOptions{}),
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,

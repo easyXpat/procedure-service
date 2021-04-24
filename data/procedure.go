@@ -36,17 +36,12 @@ type Procedure struct {
 	// creation time for the procedure
 	//
 	// required: false
-	CreatedAt  time.Time `json:"created_at" sql:"created_at"`
+	CreatedAt time.Time `json:"created_at" sql:"created_at"`
 
 	// last update time for the procedure
 	//
 	// required: false
 	UpdatedAt  time.Time `json:"updated_at" sql:"updated_at"`
-
-	// last update time for the procedure
-	//
-	// required: false
-	// Steps  Steps `json:"steps" sql:"steps"`
 }
 
 type Procedures []*Procedure
@@ -57,8 +52,7 @@ type ProcedureDB interface {
 	GetAllProcedures(ctx context.Context) (Procedures, error)
 	UpdateProcedure(ctx context.Context, p *Procedure) (*Procedure, error)
 	GetProcedure(ctx context.Context, id string) (*Procedure, error)
-
-	// Steps
+	DeleteProcedure(ctx context.Context, id string) error
 	AddStep(ctx context.Context, p *Step) error
 	GetAllSteps(ctx context.Context) (Steps, error)
 	GetProcedureSteps(ctx context.Context, id string) (Steps, error)
