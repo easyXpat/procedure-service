@@ -7,9 +7,10 @@ import (
 	"github.com/easyXpat/procedure-service/handlers"
 	"github.com/easyXpat/procedure-service/store"
 	"github.com/go-openapi/runtime/middleware"
-	gohandlers "github.com/gorilla/handlers"
+	//gohandlers "github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/hashicorp/go-hclog"
+	"github.com/rs/cors"
 	"net/http"
 	"os"
 	"os/signal"
@@ -51,6 +52,11 @@ func main() {
 	opts := middleware.RedocOpts{SpecURL: "/swagger.yaml"}
 	sh := middleware.Redoc(opts, nil)
 
+	//jwtMiddleware := jwtmiddleware.New(jwtmiddleware.Options {
+	//	ValidationKeyGetter: handlers.ValidationKeyGetter,
+	//	SigningMethod: jwt.SigningMethodRS256,
+	//})
+
 	// create mux server
 	sm := mux.NewRouter()
 
@@ -62,6 +68,7 @@ func main() {
 
 	getR.HandleFunc("/procedure/{id}", ph.GetProcedure)
 	//getR.HandleFunc("/procedures/{city}", ph.GetProceduresFromCity)
+	//getR.Handle("/procedures", jwtMiddleware.Handler(http.HandlerFunc(ph.GetProcedures)))
 	getR.HandleFunc("/procedures", ph.GetProcedures)
 	getR.HandleFunc("/steps", st.GetSteps)
 	getR.HandleFunc("/steps/{procedure}", st.GetProcedureSteps)
@@ -82,18 +89,23 @@ func main() {
 	putR.HandleFunc("/procedures", ph.UpdateProcedure)
 	putR.Use(ph.MiddlewareValidateProcedure)
 
-	ch := gohandlers.CORS(gohandlers.AllowedOrigins([]string{"*"}))
+	//ch := gohandlers.CORS(gohandlers.AllowedOrigins([]string{"*"}), gohandlers.AllowedMethods([]string{"*"}), gohandlers.AllowedHeaders([]string{"*"}))
 
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "9090"
 	}
 
+	corsWrapper := cors.New(cors.Options{
+		AllowedMethods: []string{"GET", "POST"},
+		AllowedHeaders: []string{"Content-Type", "Origin", "Accept", "*"},
+	})
+
 	logger.Info("Starting web server", "port", port)
 	logger.Info("Test Heroku", "port", port)
 	svr := http.Server{
 		Addr:         ":"+port,
-		Handler:      ch(sm),
+		Handler:      corsWrapper.Handler(sm),
 		ErrorLog:     logger.StandardLogger(&hclog.StandardLoggerOptions{}),
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
