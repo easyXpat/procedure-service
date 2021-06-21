@@ -53,7 +53,7 @@ Update procedure
 
 ```json
 {
-	"id": "09e1ae77-52b1-449b-801c-bb90357b7ed4"
+	"id": "09e1ae77-52b1-449b-801c-bb90357b7ed4",
 	"name": "Blue Card",
 	"description": "Process to apply for a Blue Card",
 	"city": "Frankfurt"
