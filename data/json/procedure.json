@@ -1,0 +1,66 @@
+[
+  {
+    "id": "09e1ae77-52b1-449b-801c-bb90357b7ed4",
+    "name": "Blue Card",
+    "description": "Blue Card",
+    "city": "Munich",
+    "created_at": "2021-03-22T23:56:15.353842Z",
+    "updated_at": "2021-03-23T00:27:51.82595Z"
+  },
+  {
+    "id": "4ad970a3-c8c6-404e-af42-dd7af9ebdae8",
+    "name": "Student Permit",
+    "description": "student permit",
+    "city": "Berlin",
+    "created_at": "2021-03-23T00:28:33.502471Z",
+    "updated_at": "2021-03-23T00:28:33.502471Z"
+  },
+  {
+    "id": "08718a45-1b18-4414-bcea-ca0524ed0f2d",
+    "name": "Work Permit",
+    "description": "work permit",
+    "city": "Berlin",
+    "created_at": "2021-03-23T00:28:40.739561Z",
+    "updated_at": "2021-03-23T00:28:40.739561Z"
+  },
+  {
+    "id": "c3e82d4a-a0eb-47f3-84ef-a3d939db83d0",
+    "name": "Family Reunification",
+    "description": "family reunification",
+    "city": "Berlin",
+    "created_at": "2021-03-23T00:29:07.88872Z",
+    "updated_at": "2021-03-23T00:29:07.888721Z"
+  },
+  {
+    "id": "f197984b-cbec-4978-9873-a583548c2604",
+    "name": "Au Pair",
+    "description": "au pair",
+    "city": "Berlin",
+    "created_at": "2021-03-23T00:29:21.899586Z",
+    "updated_at": "2021-03-23T00:29:21.899586Z"
+  },
+  {
+    "id": "208ba78e-b195-4aad-b086-99a3e8611d31",
+    "name": "Other",
+    "description": "other",
+    "city": "Munich",
+    "created_at": "2021-03-22T23:56:04.393902Z",
+    "updated_at": "2021-03-23T00:29:55.283608Z"
+  },
+  {
+    "id": "043ab465-13a4-4789-8883-6632135f8ade",
+    "name": "Proceso X",
+    "description": "description",
+    "city": "Berlin",
+    "created_at": "2021-03-24T18:36:26.405375Z",
+    "updated_at": "2021-03-24T18:36:26.405375Z"
+  },
+  {
+    "id": "ce97f6db-ca95-4356-aeb3-b155c19dfa58",
+    "name": "Blue Card",
+    "description": "blue card",
+    "city": "Berlin",
+    "created_at": "2021-06-16T04:53:16.582368Z",
+    "updated_at": "2021-06-16T04:53:16.582368Z"
+  }
+]

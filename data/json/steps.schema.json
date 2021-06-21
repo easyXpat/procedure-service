@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Step",
+  "required" : [
+    "id",
+    "procedure_id",
+    "name",
+    "description",
+    "rank"
+  ],
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "UUID to identify the step"
+    },
+    "procedure_id": {
+      "type": "string",
+      "description": "UUID to identify the procedure this step belongs to"
+    },
+    "name": {
+      "type": "string",
+      "description": "name of the step"
+    },
+    "rank": {
+      "type": "integer",
+      "description": "rank for the step"
+    },
+    "description": {
+      "type": "string",
+      "description": "description"
+    },
+    "created_at": {
+      "type": "string",
+      "description": "UTC datetime when record was created",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "description": "UTC datetime when record was last updated",
+      "format": "date-time"
+    }
+  }
+}
