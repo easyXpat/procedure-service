@@ -4,21 +4,61 @@
 
 The procedure service handles operations related to procedures offered by EasyXpat
 
-### Running the procedure service
+### Running the procedure service locally
 
-### Running local
+*Create postgres DB instance*
 
 `docker run -d -p 5432:5432 --env-file db.env postgres:alpine`
-`go run .`
 
+*Run service*
 
-## Method Usage
+`go build .`
+`go run main.go`
+
+### API Documentation
+
+https://easyxpat-procedure.herokuapp.com/docs
+
+## Methods Usage Examples
+
 ### GET
 
-#### Example
+Get all procedures 
 
+`curl https://easyxpat-procedure.herokuapp.com/procedures`
 
-### DELETE
+Get specific procedure
+
+`curl https://easyxpat-procedure.herokuapp.com/procedures/{id}`
+
+### POST 
+
+Create procedure
+
+`curl -X POST -d {json} https://easyxpat-procedure.herokuapp.com/procedures`
+
+```json
+{
+	"name": "Blue Card",
+	"description": "Process to apply for a Blue Card",
+	"city": "Frankfurt"
+}
+```
+
+### PUT 
+
+Update procedure 
+
+`curl -X PUT -d {json} https://easyxpat-procedure.herokuapp.com/procedures/{id}`
+
+```json
+{
+	"id": "09e1ae77-52b1-449b-801c-bb90357b7ed4"
+	"name": "Blue Card",
+	"description": "Process to apply for a Blue Card",
+	"city": "Frankfurt"
+}
+```
 
 #### Example
 
