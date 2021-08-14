@@ -27,3 +27,19 @@ func (ph *Procedure) UpdateProcedure(w http.ResponseWriter, r *http.Request) {
 	}
 	data.ToJSON(&updatedProcedure, w)
 }
+
+// UpdateStep handles the update of a step
+func (st *Step) UpdateStep(w http.ResponseWriter, r *http.Request) {
+	// fetch the step from the context
+	st.logger.Debug("handler for updateStep")
+	step := r.Context().Value(StepKey{}).(data.Step)
+	st.logger.Debug("Updating step", "id", step.ID)
+
+	updatedStep, err := st.db.UpdateStep(context.Background(), &step)
+	if err != nil {
+		st.logger.Error("Error updating procedure", "error", err)
+		data.ToJSON(&GenericError{Message: err.Error()}, w)
+		return
+	}
+	data.ToJSON(&updatedStep, w)
+}

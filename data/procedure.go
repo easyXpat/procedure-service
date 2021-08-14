@@ -33,6 +33,11 @@ type Procedure struct {
 	// max length: 32
 	City string `json:"city" validate:"required" sql:"city"`
 
+	// steps for the procedure
+	//
+	// required: false
+	Steps map[int]map[string]bool `json:"steps" sql:"steps"`
+
 	// creation time for the procedure
 	//
 	// required: false
@@ -53,8 +58,5 @@ type ProcedureDB interface {
 	UpdateProcedure(ctx context.Context, p *Procedure) (*Procedure, error)
 	GetProcedure(ctx context.Context, id string) (*Procedure, error)
 	DeleteProcedure(ctx context.Context, id string) error
-	AddStep(ctx context.Context, p *Step) error
-	GetAllSteps(ctx context.Context) (Steps, error)
 	GetProcedureSteps(ctx context.Context, id string) (Steps, error)
-	GetStep(ctx context.Context, id string) (Steps, error)
 }

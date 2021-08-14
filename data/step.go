@@ -1,6 +1,7 @@
 package data
 
 import (
+	"context"
 	"time"
 )
 
@@ -14,12 +15,19 @@ type Step struct {
 	// max length: 255
 	ID string `json:"id" sql:"id"`
 
-	// unique procedure id for the step
+	// procedure name of the step. In case the step is procedure specific.
 	//
-	// required: true
+	// required: false
 	// min: 1
 	// max length: 255
-	ProcedureID string `json:"procedure_id" sql:"procedure_id"`
+	ProcedureName string `json:"procedure_name" sql:"procedure_name"`
+
+	// city for the step. In case the step is city specific
+	//
+	// required: false
+	// min: 1
+	// max length: 255
+	City string `json:"city" sql:"city"`
 
 	// name for the step
 	//
@@ -44,6 +52,14 @@ type Step struct {
 	//
 	// required: false
 	UpdatedAt time.Time `name:"updated_at" sql:"updated_at"`
+}
+
+type StepDB interface {
+	AddStep(ctx context.Context, p *Step) error
+	GetAllSteps(ctx context.Context) (Steps, error)
+	GetStep(ctx context.Context, id string) (Steps, error)
+	UpdateStep(ctx context.Context, p *Step) (Steps, error)
+	DeleteStep(ctx context.Context, id string) error
 }
 
 type Steps []*Step

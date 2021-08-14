@@ -77,24 +77,24 @@ func (st *Step) GetSteps(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// getProcedureSteps returns all steps for a procedure
-func (st *Step) GetProcedureSteps(w http.ResponseWriter, r *http.Request) {
-	st.logger.Debug("handle getProcedureSteps")
-	w.Header().Add("Content-Type", "application/json")
-
-	vars := mux.Vars(r)
-	id := vars["procedure"]
-
-	steps, err := st.db.GetProcedureSteps(context.Background(), id)
-	if err != nil {
-		st.logger.Error("Unable to fetch steps for procedure")
-		w.WriteHeader(http.StatusInternalServerError)
-		data.ToJSON(&GenericError{Message: err.Error()}, w)
-		return
-	}
-	st.logger.Info("Procedure created successfully")
-	err = data.ToJSON(steps, w)
-}
+//// getProcedureSteps returns all steps for a procedure
+//func (st *Step) GetProcedureSteps(w http.ResponseWriter, r *http.Request) {
+//	st.logger.Debug("handle getProcedureSteps")
+//	w.Header().Add("Content-Type", "application/json")
+//
+//	vars := mux.Vars(r)
+//	id := vars["procedure"]
+//
+//	steps, err := st.db.GetProcedureSteps(context.Background(), id)
+//	if err != nil {
+//		st.logger.Error("Unable to fetch steps for procedure")
+//		w.WriteHeader(http.StatusInternalServerError)
+//		data.ToJSON(&GenericError{Message: err.Error()}, w)
+//		return
+//	}
+//	st.logger.Info("Procedure created successfully")
+//	err = data.ToJSON(steps, w)
+//}
 
 func (st *Step) GetStep(w http.ResponseWriter, r *http.Request) {
 	st.logger.Debug("handle GetStep")

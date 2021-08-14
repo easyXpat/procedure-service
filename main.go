@@ -43,11 +43,12 @@ func main() {
 	db.Exec(context.Background(), store.StepTableDDL)
 
 	// procedure service contains all methods that interact with DB to perform CRUD operations for procedure
-	procedureDB := data.NewProcedurePG(logger, db)
+	procedureDB := data.NewProcedurePostgres(logger, db)
+	stepDB := data.NewStepPostgres(logger, db)
 
 	// handlers encapsulates procedure related services.
 	ph := handlers.NewProcedure(logger, procedureDB, validator)
-	st := handlers.NewStep(logger, procedureDB, validator)
+	st := handlers.NewStep(logger, stepDB, validator)
 
 	// handler for documentation
 	opts := middleware.RedocOpts{SpecURL: "/swagger.yaml"}
@@ -61,42 +62,53 @@ func main() {
 	// create mux server
 	sm := mux.NewRouter()
 
-	// register subrouter for GET methods
+	//	=== GET methods ===
 	getR := sm.Methods(http.MethodGet).Subrouter()
+	// docs
 	getR.Handle("/docs", sh)
 	getR.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
-
+	// procedures
 	getR.HandleFunc("/procedure/{id}", ph.GetProcedure)
+	getR.HandleFunc("/procedures", ph.GetProcedures)
+	// steps
+	getR.HandleFunc("/steps/{id}", st.GetStep)
+	getR.HandleFunc("/steps", st.GetSteps)
+
 	//getR.HandleFunc("/procedures/{city}", ph.GetProceduresFromCity)
 	//getR.Handle("/procedures", jwtMiddleware.Handler(http.HandlerFunc(ph.GetProcedures)))
-	getR.HandleFunc("/procedures", ph.GetProcedures)
-	getR.HandleFunc("/steps", st.GetSteps)
-	getR.HandleFunc("/steps/{procedure}", st.GetProcedureSteps)
-	getR.HandleFunc("/step/{id}", st.GetStep)
+	//getR.HandleFunc("/steps/{procedure}", st.GetProcedureSteps)
 	//getR.HandleFunc(fmt.Sprintf("/procedures/{id:%s}", UUIDv4Format), ph.GetProcedure)
 	//getR.HandleFunc("/procedures", ph.ListAll)
 
-	// register subrouter for POST methods
+	//	=== POST methods ===
 	postR := sm.Methods(http.MethodPost).Subrouter()
-	postR.HandleFunc("/procedures", ph.CreateProcedure)
-	postR.Use(ph.MiddlewareValidateProcedure)
-
 	postStepR := sm.Methods(http.MethodPost).Subrouter()
-	postStepR.HandleFunc("/steps", st.CreateStep)
+	postR.Use(ph.MiddlewareValidateProcedure)
 	postStepR.Use(st.MiddlewareValidateStep)
+	// procedures
+	postR.HandleFunc("/procedures", ph.CreateProcedure)
+	// steps
+	postStepR.HandleFunc("/steps", st.CreateStep)
 
-	// register subrouter for PUT methods
+	//	=== PUT methods ===
 	putR := sm.Methods(http.MethodPut).Subrouter()
-	putR.HandleFunc("/procedures", ph.UpdateProcedure)
 	putR.Use(ph.MiddlewareValidateProcedure)
+	putStepR := sm.Methods(http.MethodPut).Subrouter()
+	putStepR.Use(st.MiddlewareValidateStep)
+	// procedure
+	putR.HandleFunc("/procedures", ph.UpdateProcedure)
+	// step
+	putStepR.HandleFunc("/steps", st.UpdateStep)
 
-	//ch := gohandlers.CORS(gohandlers.AllowedOrigins([]string{"*"}), gohandlers.AllowedMethods([]string{"*"}), gohandlers.AllowedHeaders([]string{"*"}))
-	// register subrouter for DELETE methods
+	//	=== DELETE methods ===
 	deleteR := sm.Methods(http.MethodDelete).Subrouter()
+	// procedure
 	deleteR.HandleFunc("/procedures/{id}", ph.DeleteProcedure)
+	deleteR.HandleFunc("/steps/{id}", st.DeleteStep)
+
 
 	ch := gohandlers.CORS(gohandlers.AllowedOrigins([]string{"*"}))
-
+	//ch := gohandlers.CORS(gohandlers.AllowedOrigins([]string{"*"}), gohandlers.AllowedMethods([]string{"*"}), gohandlers.AllowedHeaders([]string{"*"}))
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "9090"

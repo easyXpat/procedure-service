@@ -11,12 +11,12 @@ type StepKey struct{}
 // Step wraps instances needed to perform operations on step object
 type Step struct {
 	logger          hclog.Logger
-	db 	data.ProcedureDB
+	db 	data.StepDB
 	validator         *data.Validation
 }
 
 // NewProcedure creates a new procedure handler
-func NewStep(l hclog.Logger, pdb data.ProcedureDB, v *data.Validation) *Step {
+func NewStep(l hclog.Logger, pdb data.StepDB, v *data.Validation) *Step {
 	return &Step{
 		l,
 		pdb,

@@ -22,8 +22,9 @@ const (
 	StepTableDDL = `
 		create table if not exists step (
 			id	Varchar(64) not null,
-			procedure_id	Varchar(64) not null,
 			name Varchar(255) not null,
+			procedure_name	Varchar(64),
+			city Varchar(32),
 			description Varchar(1000),
 			created_at  Timestamp not null,
 			updated_at  Timestamp not null,
