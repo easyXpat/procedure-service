@@ -31,6 +31,15 @@ const (
 			Primary Key(id)
 		);
 	`
+
+	ProcedureStepTableDDL = `
+		create table if not exists procedure_step (
+			procedure_id Varchar(64) REFERENCES procedure (id) ON UPDATE CASCADE ON DELETE CASCADE,
+			step_id Varchar(64) REFERENCES step (id) ON UPDATE CASCADE ON DELETE CASCADE,
+			sequence int NOT NULL,
+			CONSTRAINT procedure_step_pk PRIMARY KEY (procedure_id, step_id)
+		);
+	`
 )
 
 func NewConnection(logger hclog.Logger, config *config.Configuration) (*pgx.Conn, error) {

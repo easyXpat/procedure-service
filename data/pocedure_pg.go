@@ -2,6 +2,8 @@ package data
 
 import (
 	"context"
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/georgysavva/scany/pgxscan"
@@ -17,12 +19,20 @@ const (
 	UpdateProcedureDML  = "UPDATE procedure SET name = $1, description = $2, city = $3, updated_at = $4 where id = $5"
 	GetProcedureStepsDML     = "SELECT * FROM step WHERE procedure_id = $1"
 	DeleteProcedureQ  = "DELETE FROM procedure WHERE id = $1"
+	InsertProcedureStepsDML = "INSERT INTO procedure_step (procedure_id, step_id, sequence) VALUES"
+	GetProcedureStepDML = "SELECT step_id, sequence FROM procedure_step WHERE procedure_id = $1"
 )
 
-// PostgresClient is an implementation of the Procedure DB interface
+// ProcedurePostgres is an implementation of the Procedure DB interface
 type ProcedurePostgres struct {
 	logger hclog.Logger
 	db     *pgx.Conn
+}
+
+// StepSequence is an implementation of the procedure step mapping result from postgres
+type StepSequence struct {
+	StepID string `json:"step_id" sql:"step_id"`
+	Sequence int `json:"sequence" sql:"sequence"`
 }
 
 // NewProcedurePostgres Creates a client for interacting with the procedure relation in postgres DB
@@ -81,8 +91,20 @@ func (ppg *ProcedurePostgres) GetProcedure(ctx context.Context, id string) (*Pro
 		ppg.logger.Error("Error fetching procedure", "error", err)
 		return nil, err
 	}
+	var s []*StepSequence
+	err = pgxscan.Select(ctx, ppg.db, &s, GetProcedureStepDML, id)
+	if err != nil {
+		ppg.logger.Error("Error fetching procedure", "error", err)
+		return nil, err
+	}
+	if len(s) > 0 {
+		steps := make(map[int]string)
+		for _,v := range s {
+			steps[v.Sequence] = v.StepID
+		}
+		p.Steps = steps
+	}
 	return &p, nil
-
 }
 
 func (ppg *ProcedurePostgres) GetProcedureSteps(ctx context.Context, id string) (Steps, error) {
@@ -100,11 +122,28 @@ func (ppg *ProcedurePostgres) GetProcedureSteps(ctx context.Context, id string) 
 
 // DeleteProcedure deletes a procedure from the DB using its id
 func (ppg *ProcedurePostgres) DeleteProcedure(ctx context.Context, id string) error {
-
 	ppg.logger.Info("deleting procedure", "id", id)
 	_, err := ppg.db.Exec(ctx, DeleteProcedureQ, id)
 	if err != nil {
 		ppg.logger.Error("Error deleting procedure in db", "error", err)
+		return err
+	}
+	return nil
+}
+
+// MapProcedureSteps maps steps to procedures using relationship table
+func (ppg *ProcedurePostgres) MapProcedureSteps(ctx context.Context, id string, m map[int]string) error {
+	ppg.logger.Info("mapping steps for", "procedure", id)
+	var lines []string
+	for k, v := range m {
+		line := fmt.Sprintf("('%s', '%s', %d)", id, v, k)
+		lines = append(lines, line)
+	}
+	values := strings.Join(lines, ",")
+	sql := fmt.Sprintf("%s %s", InsertProcedureStepsDML, values)
+	_, err := ppg.db.Exec(ctx, sql)
+	if err != nil {
+		ppg.logger.Error("Error mapping procedure steps", "error", err)
 		return err
 	}
 	return nil

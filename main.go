@@ -41,6 +41,7 @@ func main() {
 	// creation of procedure table
 	db.Exec(context.Background(), store.ProcedureTableDDL)
 	db.Exec(context.Background(), store.StepTableDDL)
+	db.Exec(context.Background(), store.ProcedureStepTableDDL)
 
 	// procedure service contains all methods that interact with DB to perform CRUD operations for procedure
 	procedureDB := data.NewProcedurePostgres(logger, db)
@@ -68,7 +69,7 @@ func main() {
 	getR.Handle("/docs", sh)
 	getR.Handle("/swagger.yaml", http.FileServer(http.Dir("./")))
 	// procedures
-	getR.HandleFunc("/procedure/{id}", ph.GetProcedure)
+	getR.HandleFunc("/procedures/{id}", ph.GetProcedure)
 	getR.HandleFunc("/procedures", ph.GetProcedures)
 	// steps
 	getR.HandleFunc("/steps/{id}", st.GetStep)

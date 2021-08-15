@@ -36,7 +36,7 @@ type Procedure struct {
 	// steps for the procedure
 	//
 	// required: false
-	Steps map[int]map[string]bool `json:"steps" sql:"steps"`
+	Steps map[int]string `json:"steps"`
 
 	// creation time for the procedure
 	//
@@ -59,4 +59,5 @@ type ProcedureDB interface {
 	GetProcedure(ctx context.Context, id string) (*Procedure, error)
 	DeleteProcedure(ctx context.Context, id string) error
 	GetProcedureSteps(ctx context.Context, id string) (Steps, error)
+	MapProcedureSteps(ctx context.Context, id string, m map[int]string) error
 }

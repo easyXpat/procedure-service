@@ -26,6 +26,14 @@ func (ph *Procedure) CreateProcedure(w http.ResponseWriter, r *http.Request) {
 		data.ToJSON(&GenericError{Message: err.Error()}, w)
 		return
 	}
+	// insert steps mapping is present
+	if procedure.Steps != nil {
+		err = ph.db.MapProcedureSteps(context.Background(), procedure.ID, procedure.Steps)
+		if err != nil {
+			data.ToJSON(&GenericError{Message: err.Error()}, w)
+			return
+		}
+	}
 	data.ToJSON(&procedure, w)
 }
 
