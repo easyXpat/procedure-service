@@ -9,7 +9,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// swagger:route DELETE /procedures/{id} procedures deleteProcedures
+// swagger:route DELETE /procedures/{id} procedures deleteProcedure
 // Delete an existing procedure
 // responses:
 // 	200: procedureResponse
@@ -38,6 +38,12 @@ func (ph *Procedure) DeleteProcedure(w http.ResponseWriter, r *http.Request) {
 	}
 	data.ToJSON(&procedure, w)
 }
+
+// swagger:route DELETE /steps/{id} steps deleteStep
+// Delete an existing ste[
+// responses:
+// 	200: stepResponse
+// 	404: errorValidation
 
 // DeleteStep handles DELETE requests to existing steps
 func (st *Step) DeleteStep(w http.ResponseWriter, r *http.Request) {

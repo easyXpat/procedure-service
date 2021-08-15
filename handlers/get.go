@@ -7,12 +7,12 @@ import (
 	"net/http"
 )
 
-// swagger:route GET /procedures procedures getSteps
+// swagger:route GET /procedures procedures getProcedures
 // return all procedures from the database
 // responses:
 // 	200: proceduresResponse
 
-// ListAll handles GET requests and returns all current procedures
+// GetProcedures handles GET requests and returns all current procedures
 func (ph *Procedure) GetProcedures(w http.ResponseWriter, r *http.Request) {
 	ph.logger.Debug("Fetch all procedures")
 	w.Header().Add("Content-Type", "application/json")
@@ -50,7 +50,7 @@ func (ph *Procedure) GetProcedure(w http.ResponseWriter, r *http.Request) {
 		data.ToJSON(&GenericError{Message: err.Error()}, w)
 		return
 	}
-	ph.logger.Info("Procedure created successfully")
+	ph.logger.Info("Procedure fetched successfully")
 	err = data.ToJSON(procedure, w)
 }
 
@@ -59,7 +59,7 @@ func (ph *Procedure) GetProcedure(w http.ResponseWriter, r *http.Request) {
 // responses:
 // 	200: stepsResponse
 
-// ListAll handles GET requests and returns all current procedures
+// GetSteps handles GET requests and returns all steps
 func (st *Step) GetSteps(w http.ResponseWriter, r *http.Request) {
 	st.logger.Debug("Fetch all steps")
 	w.Header().Add("Content-Type", "application/json")
@@ -77,25 +77,12 @@ func (st *Step) GetSteps(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-//// getProcedureSteps returns all steps for a procedure
-//func (st *Step) GetProcedureSteps(w http.ResponseWriter, r *http.Request) {
-//	st.logger.Debug("handle getProcedureSteps")
-//	w.Header().Add("Content-Type", "application/json")
-//
-//	vars := mux.Vars(r)
-//	id := vars["procedure"]
-//
-//	steps, err := st.db.GetProcedureSteps(context.Background(), id)
-//	if err != nil {
-//		st.logger.Error("Unable to fetch steps for procedure")
-//		w.WriteHeader(http.StatusInternalServerError)
-//		data.ToJSON(&GenericError{Message: err.Error()}, w)
-//		return
-//	}
-//	st.logger.Info("Procedure created successfully")
-//	err = data.ToJSON(steps, w)
-//}
+// swagger:route GET /steps/{id} steps getStep
+// list single step from db
+// responses:
+// 	200: stepResponse
 
+// GetStep handles GET request for GetStep
 func (st *Step) GetStep(w http.ResponseWriter, r *http.Request) {
 	st.logger.Debug("handle GetStep")
 	w.Header().Add("Content-Type", "application/json")

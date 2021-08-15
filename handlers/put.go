@@ -28,6 +28,12 @@ func (ph *Procedure) UpdateProcedure(w http.ResponseWriter, r *http.Request) {
 	data.ToJSON(&updatedProcedure, w)
 }
 
+// swagger:route PUT /steps steps updateStep
+// Update existing step
+//
+// responses:
+//	200: stepResponse
+
 // UpdateStep handles the update of a step
 func (st *Step) UpdateStep(w http.ResponseWriter, r *http.Request) {
 	// fetch the step from the context

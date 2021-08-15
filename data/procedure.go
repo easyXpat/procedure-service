@@ -36,7 +36,12 @@ type Procedure struct {
 	// steps for the procedure
 	//
 	// required: false
-	Steps map[int]string `json:"steps"`
+	Steps Steps `json:"steps"`
+
+	// steps mapping for the procedure
+	//
+	// required: false
+	StepsMapping map[int]string `json:"steps_map"`
 
 	// creation time for the procedure
 	//

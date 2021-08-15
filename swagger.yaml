@@ -38,6 +38,11 @@ definitions:
         maxLength: 255
         type: string
         x-go-name: Name
+      steps:
+        $ref: '#/definitions/Steps'
+      steps_map:
+        description: steps mapping for the procedure
+        x-go-name: StepsMapping
       updated_at:
         description: last update time for the procedure
         format: date-time
@@ -46,6 +51,55 @@ definitions:
     required:
     - name
     type: object
+    x-go-package: github.com/easyXpat/procedure-service/data
+  Step:
+    description: Step defines the structure for an API step
+    properties:
+      CreatedAt:
+        description: creation time for the step
+        format: date-time
+        type: string
+      Description:
+        description: description for the step
+        maxLength: 1000
+        minimum: 1
+        type: string
+      UpdatedAt:
+        description: last update time for the step
+        format: date-time
+        type: string
+      city:
+        description: city for the step. In case the step is city specific
+        maxLength: 255
+        minimum: 1
+        type: string
+        x-go-name: City
+      id:
+        description: unique id for the step
+        maxLength: 255
+        minimum: 1
+        type: string
+        x-go-name: ID
+      name:
+        description: name for the step
+        maxLength: 255
+        minimum: 1
+        type: string
+        x-go-name: Name
+      procedure_name:
+        description: procedure name of the step. In case the step is procedure specific.
+        maxLength: 255
+        minimum: 1
+        type: string
+        x-go-name: ProcedureName
+    required:
+    - name
+    type: object
+    x-go-package: github.com/easyXpat/procedure-service/data
+  Steps:
+    items:
+      $ref: '#/definitions/Step'
+    type: array
     x-go-package: github.com/easyXpat/procedure-service/data
   ValidationError:
     description: ValidationError is a collection of validation error messages
@@ -65,7 +119,7 @@ paths:
   /procedures:
     get:
       description: return all procedures from the database
-      operationId: listProcedures
+      operationId: getProcedures
       responses:
         "200":
           $ref: '#/responses/proceduresResponse'
@@ -96,7 +150,7 @@ paths:
   /procedures/{id}:
     delete:
       description: Delete an existing procedure
-      operationId: deleteProcedures
+      operationId: deleteProcedure
       responses:
         "200":
           $ref: '#/responses/procedureResponse'
@@ -112,6 +166,50 @@ paths:
           $ref: '#/responses/procedureResponse'
       tags:
       - procedures
+  /steps:
+    get:
+      description: return all steps from the database
+      operationId: getSteps
+      responses:
+        "200":
+          $ref: '#/responses/stepsResponse'
+      tags:
+      - steps
+    post:
+      description: Create a new step
+      operationId: createStep
+      responses:
+        "200":
+          $ref: '#/responses/stepResponse'
+      tags:
+      - steps
+    put:
+      description: Update existing step
+      operationId: updateStep
+      responses:
+        "200":
+          $ref: '#/responses/stepResponse'
+      tags:
+      - steps
+  /steps/{id}:
+    delete:
+      description: Delete an existing ste[
+      operationId: deleteStep
+      responses:
+        "200":
+          $ref: '#/responses/stepResponse'
+        "404":
+          $ref: '#/responses/errorValidation'
+      tags:
+      - steps
+    get:
+      description: list single step from db
+      operationId: getStep
+      responses:
+        "200":
+          $ref: '#/responses/stepResponse'
+      tags:
+      - steps
 produces:
 - application/json
 responses:
@@ -132,6 +230,16 @@ responses:
     schema:
       items:
         $ref: '#/definitions/Procedure'
+      type: array
+  stepResponse:
+    description: Data structure representing a single step
+    schema:
+      $ref: '#/definitions/Step'
+  stepsResponse:
+    description: A list of steps
+    schema:
+      items:
+        $ref: '#/definitions/Step'
       type: array
 schemes:
 - http

@@ -20,7 +20,8 @@ const (
 	GetProcedureStepsDML     = "SELECT * FROM step WHERE procedure_id = $1"
 	DeleteProcedureQ  = "DELETE FROM procedure WHERE id = $1"
 	InsertProcedureStepsDML = "INSERT INTO procedure_step (procedure_id, step_id, sequence) VALUES"
-	GetProcedureStepDML = "SELECT step_id, sequence FROM procedure_step WHERE procedure_id = $1"
+	GetStepsWithProcedureID = "SELECT * FROM step WHERE id IN (SELECT step_id FROM procedure_step WHERE procedure_id = $1)"
+	DeleteProcedureStepsRelation = "DELETE FROM procedure_step WHERE procedure_id = $1"
 )
 
 // ProcedurePostgres is an implementation of the Procedure DB interface
@@ -63,6 +64,16 @@ func (ppg *ProcedurePostgres) GetAllProcedures(ctx context.Context) (Procedures,
 		return nil, err
 	}
 
+	for k, v := range p {
+		var s Steps
+		err = pgxscan.Select(ctx, ppg.db, &s, GetStepsWithProcedureID, v.ID)
+		if err != nil {
+			ppg.logger.Error("Error fetching procedure", "error", err)
+			return nil, err
+		}
+		p[k].Steps = s
+	}
+
 	return p, nil
 }
 
@@ -74,6 +85,18 @@ func (ppg *ProcedurePostgres) UpdateProcedure(ctx context.Context, p *Procedure)
 	if err != nil {
 		ppg.logger.Error("Error updating procedure in db", "error", err)
 		return nil, err
+	}
+	if p.StepsMapping != nil {
+		_, err = ppg.db.Exec(ctx, DeleteProcedureStepsRelation, p.ID)
+		if err != nil {
+			ppg.logger.Error("Error deleting procedure step mapping", "error", err)
+			return nil, err
+		}
+		err = ppg.MapProcedureSteps(context.Background(), p.ID, p.StepsMapping)
+		if err != nil {
+			ppg.logger.Error("Error mapping procedure steps", "error", err)
+			return nil, err
+		}
 	}
 	updatedProcedure, err := ppg.GetProcedure(ctx, p.ID)
 	if err != nil {
@@ -91,19 +114,13 @@ func (ppg *ProcedurePostgres) GetProcedure(ctx context.Context, id string) (*Pro
 		ppg.logger.Error("Error fetching procedure", "error", err)
 		return nil, err
 	}
-	var s []*StepSequence
-	err = pgxscan.Select(ctx, ppg.db, &s, GetProcedureStepDML, id)
+	var s Steps
+	err = pgxscan.Select(ctx, ppg.db, &s, GetStepsWithProcedureID, id)
 	if err != nil {
 		ppg.logger.Error("Error fetching procedure", "error", err)
 		return nil, err
 	}
-	if len(s) > 0 {
-		steps := make(map[int]string)
-		for _,v := range s {
-			steps[v.Sequence] = v.StepID
-		}
-		p.Steps = steps
-	}
+	p.Steps = s
 	return &p, nil
 }
 
@@ -126,6 +143,11 @@ func (ppg *ProcedurePostgres) DeleteProcedure(ctx context.Context, id string) er
 	_, err := ppg.db.Exec(ctx, DeleteProcedureQ, id)
 	if err != nil {
 		ppg.logger.Error("Error deleting procedure in db", "error", err)
+		return err
+	}
+	_, err = ppg.db.Exec(ctx, DeleteProcedureStepsRelation, id)
+	if err != nil {
+		ppg.logger.Error("Error deleting procedure step mapping", "error", err)
 		return err
 	}
 	return nil
