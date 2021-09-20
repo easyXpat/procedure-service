@@ -69,3 +69,11 @@ type stepsResponseWrapper struct {
 	Body []data.Step
 }
 
+// Data structure representing a single charge
+// swagger:response chargeResponse
+type chargeResponseWrapper struct {
+	// Newly created procedure
+	// in: body
+	Body data.Charge
+}
+

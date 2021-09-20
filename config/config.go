@@ -2,13 +2,16 @@ package config
 
 import (
 	"fmt"
-	"github.com/spf13/viper"
 	"github.com/hashicorp/go-hclog"
+	"github.com/spf13/viper"
+	"gorm.io/gorm"
 )
 
 const (
 	EnvPrefix = "XPAT_"
 )
+
+var DB *gorm.DB
 
 type Configuration struct {
 	ServerAddress              string

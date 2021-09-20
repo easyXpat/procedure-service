@@ -37,6 +37,11 @@ func main() {
 		logger.Error("unable to connect to db", "error", err)
 		panic(err)
 	}
+	dbGorm, err := store.NewConnectionORM(logger, configs)
+	if err != nil {
+		logger.Error("unable to connect to db", "error", err)
+		panic(err)
+	}
 
 	// creation of procedure table
 	db.Exec(context.Background(), store.ProcedureTableDDL)
@@ -50,6 +55,7 @@ func main() {
 	// handlers encapsulates procedure related services.
 	ph := handlers.NewProcedure(logger, procedureDB, validator)
 	st := handlers.NewStep(logger, stepDB, validator)
+	pt := handlers.NewCharge(logger, dbGorm, validator)
 
 	// handler for documentation
 	opts := middleware.RedocOpts{SpecURL: "/swagger.yaml"}
@@ -84,12 +90,16 @@ func main() {
 	//	=== POST methods ===
 	postR := sm.Methods(http.MethodPost).Subrouter()
 	postStepR := sm.Methods(http.MethodPost).Subrouter()
+	postChargeR := sm.Methods(http.MethodPost).Subrouter()
 	postR.Use(ph.MiddlewareValidateProcedure)
 	postStepR.Use(st.MiddlewareValidateStep)
 	// procedures
 	postR.HandleFunc("/procedures", ph.CreateProcedure)
 	// steps
 	postStepR.HandleFunc("/steps", st.CreateStep)
+	// payments
+	postChargeR.HandleFunc("/payment", pt.CreateCharge)
+
 
 	//	=== PUT methods ===
 	putR := sm.Methods(http.MethodPut).Subrouter()

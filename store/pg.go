@@ -2,9 +2,13 @@ package store
 
 import (
 	"context"
+	"fmt"
 	"github.com/easyXpat/procedure-service/config"
+	"github.com/easyXpat/procedure-service/data"
 	"github.com/hashicorp/go-hclog"
 	"github.com/jackc/pgx/v4"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 const (
@@ -42,6 +46,8 @@ const (
 	`
 )
 
+
+
 func NewConnection(logger hclog.Logger, config *config.Configuration) (*pgx.Conn, error) {
 	logger.Info("Connecting to postgres DB", "database_url", config.DatabaseURL)
 	conn, err := pgx.Connect(context.Background(), config.DatabaseURL)
@@ -50,4 +56,15 @@ func NewConnection(logger hclog.Logger, config *config.Configuration) (*pgx.Conn
 		return nil, err
 	}
 	return conn, nil
+}
+
+func NewConnectionORM(logger hclog.Logger, cfg *config.Configuration) (*gorm.DB, error)  {
+	logger.Debug("Create db using GORM", "database_url", cfg.DatabaseURL)
+	db, err := gorm.Open(postgres.Open(cfg.DatabaseURL), &gorm.Config{})
+	if err != nil {
+		fmt.Println("error", err)
+		return nil, err
+	}
+	db.AutoMigrate(&data.Charge{})
+	return db, nil
 }
