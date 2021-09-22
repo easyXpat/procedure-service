@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"github.com/easyXpat/procedure-service/data"
-	"github.com/easyXpat/procedure-service/vendor/github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-hclog"
 	"gorm.io/gorm"
 )
