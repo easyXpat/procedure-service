@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"net/http"
@@ -18,6 +19,11 @@ func (ph *Procedure) MiddlewareValidateProcedure(next http.Handler) http.Handler
 		// deserialize procedure
 		err := data.FromJSON(procedure, r.Body)
 		if err != nil {
+			buf := new(bytes.Buffer)
+			buf.ReadFrom(r.Body)
+			newStr := buf.String()
+
+			fmt.Printf(newStr)
 			ph.logger.Debug(fmt.Sprintf("JSON to deserialize: %s", r.Body))
 			ph.logger.Error("deserialization of procedure json failed", "error", err)
 			w.WriteHeader(http.StatusBadRequest)
