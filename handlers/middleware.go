@@ -23,7 +23,7 @@ func (ph *Procedure) MiddlewareValidateProcedure(next http.Handler) http.Handler
 			buf.ReadFrom(r.Body)
 			newStr := buf.String()
 
-			fmt.Printf(newStr)
+			ph.logger.Debug(fmt.Sprintf("String to deserialize %s", newStr))
 			ph.logger.Debug(fmt.Sprintf("JSON to deserialize: %s", r.Body))
 			ph.logger.Error("deserialization of procedure json failed", "error", err)
 			w.WriteHeader(http.StatusBadRequest)
