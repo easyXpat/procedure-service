@@ -2,12 +2,14 @@ package handlers
 
 import (
 	"context"
-	"github.com/easyXpat/procedure-service/data"
+	"fmt"
 	"net/http"
+
+	"github.com/easyXpat/procedure-service/data"
 )
 
 func (ph *Procedure) MiddlewareValidateProcedure(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request){
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 
 		ph.logger.Debug("procedure JSON: %s", r.Body)
@@ -16,6 +18,7 @@ func (ph *Procedure) MiddlewareValidateProcedure(next http.Handler) http.Handler
 		// deserialize procedure
 		err := data.FromJSON(procedure, r.Body)
 		if err != nil {
+			ph.logger.Debug(fmt.Sprintf("JSON to deserialize: %s", r.Body))
 			ph.logger.Error("deserialization of procedure json failed", "error", err)
 			w.WriteHeader(http.StatusBadRequest)
 			data.ToJSON(&GenericError{Message: err.Error()}, w)
@@ -41,7 +44,7 @@ func (ph *Procedure) MiddlewareValidateProcedure(next http.Handler) http.Handler
 }
 
 func (st *Step) MiddlewareValidateStep(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request){
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 
 		st.logger.Debug("step ", "json", r.Body)

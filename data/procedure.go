@@ -51,7 +51,7 @@ type Procedure struct {
 	// last update time for the procedure
 	//
 	// required: false
-	UpdatedAt  time.Time `json:"updated_at" sql:"updated_at"`
+	UpdatedAt time.Time `json:"updated_at" sql:"updated_at"`
 }
 
 type Procedures []*Procedure
