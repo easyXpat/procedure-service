@@ -19,7 +19,6 @@ func (ph *Procedure) MiddlewareValidateProcedure(next http.Handler) http.Handler
 		err := data.FromJSON(procedure, r.Body)
 		if err != nil {
 			ph.logger.Debug(fmt.Sprintf("JSON to deserialize: %s", r.Body))
-			ph.logger.Debug(fmt.Sprintf("JSON to deserialize: %s", r.Body))
 			ph.logger.Error("deserialization of procedure json failed", "error", err)
 			w.WriteHeader(http.StatusBadRequest)
 			data.ToJSON(&GenericError{Message: err.Error()}, w)
